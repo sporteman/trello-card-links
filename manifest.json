@@ -1,0 +1,20 @@
+{
+   "author": "Deivison Sporteman",
+   "content_scripts": [ {
+      "css": [ "css/style.css" ],
+      "js": [ "js/vendor/jquery.min.js", "js/vendor/jquery-ui.min.js", "js/pluggins/pluggin.js", "js/config.js", "js/api.js", "js/init.js" ],
+      "matches": [ "https://trello.com/*" ]
+   } ],
+   "description": "Add support of Parent/Child dependencies in Trello projects.",
+   "icons": {
+      "128": "icons/icon_128.png",
+      "16": "icons/icon_16.png",
+      "48": "icons/icon_48.png"
+   },
+   "manifest_version": 2,
+   "name": "Parent Board/Child Management for Trello",
+   "options_page": "options.html",
+   "permissions": [ "tabs", "storage", "https://trello.com/", "https://api.airtable.com/" ],
+   "update_url": "https://clients2.google.com/service/update2/crx",
+   "version": "0.0.2"
+}
