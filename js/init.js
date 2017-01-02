@@ -40,7 +40,6 @@
       var self = this;
 
       $(".checklist").find($(".checklist-items-list .known-service-link")).each(function(index){
-        console.log("Comparing: "+$(this).attr("href")+" with "+name);
         if ( self.getCardNumber($(this).attr("href")) == self.getCardNumber(name) ){
           var text = $(this).text();
           var html = "<table>";
@@ -59,20 +58,35 @@
 
         for(var i=0; i < callBack.length;i++){
           if ( callBack[i].name == "Children" ){
-            for(var z=0; z< callBack[i].checkItems.length;z++){
-              var link = callBack[i].checkItems[z].name;
-              self.api.card.get(self.getCardIdFromLink(link),function(cardCallBack){
-                self.api.list.get(cardCallBack.idList,function(listCallBack){
-                    self.api.board.get(cardCallBack.idBoard,function(boardCallback){
-                        self.renameChild(cardCallBack.url,listCallBack.name,boardCallback.name);
-                    });
-                });
-
-              });
-            }
+            self.processCard(callBack[i].id,callBack[i].checkItems,0);
           }
         }
       });
+      $('.window-sidebar .window-module div').append('<a href="#" class="button-link js-sidebar-child-btn"> <span class="icon-sm handsome-icon-child"></span> Child</a>')
+    },
+    processCard: function(id,checkItems,index){
+      var self = this;
+      var link = checkItems[index].name;
+      self.api.card.get(self.getCardIdFromLink(link),function(cardCallBack){
+        self.api.list.get(cardCallBack.idList,function(listCallBack){
+            self.api.board.get(cardCallBack.idBoard,function(boardCallback){
+                self.renameChild(cardCallBack.url,listCallBack.name,boardCallback.name);
+                if ( listCallBack.name.toUpperCase() == "DONE" ){
+                  self.api.checklist.check(self.getCardIdFromLink(window.location.pathname),checkItems[index].idChecklist,checkItems[index].id
+                  ,function(){
+                    console.log("Clicked");
+                  });
+                }
+                if ( index < checkItems.length-1 ){
+                  self.processCard(id,checkItems,index+1);
+                }
+            });
+        });
+      });
+    },
+    getCardId: function (link) {
+      var match = link.match(this.data.regexp.cardId);
+      return match ? match[1] : false;
     },
     getCardNumber: function (link) {
       var match = link.match(this.data.regexp.cardIdFromLink);
@@ -96,8 +110,14 @@
       if (self.isAnyCardOpened()){
         self.processChildren();
       }
+    },
+    getCookie: function (name) {
+      var matches = document.cookie.match(new RegExp('(?:^|; )' + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + '=([^;]*)'));
+
+      return matches ? decodeURIComponent(matches[1]) : undefined;
     }
   }
+
   $(document).ready(function(){
     HandsomeTrello.init();
   });

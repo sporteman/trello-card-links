@@ -10,9 +10,9 @@ HandsomeTrello.api = {
 
     if (type.toLowerCase() !== 'get') {
       data.token = self.base.getCookie('token');
+      console.log("data.token: "+data.token);
     } else if (Object.keys(data).length) {
       url += '?' + self.base.generateParamsStringFromObject(data);
-
       data = {};
     }
 
@@ -23,7 +23,8 @@ HandsomeTrello.api = {
     xhttp.onreadystatechange = function () {
       if (xhttp.readyState === 4 && xhttp.status === 200 && typeof callback === 'function' && self.base.isJSONString(xhttp.responseText)) {
         callback(JSON.parse(xhttp.responseText));
-      }else{
+      }else if (xhttp.status === 404 || xhttp.status === 400){
+        console.log(xhttp.responseText);
       }
     };
 
@@ -75,6 +76,18 @@ HandsomeTrello.api = {
       var self = this.base;
 
       self.request('get', '/1/checklists/' + checklistId, {}, callback);
+    },
+    check : function(cardId,checklistId,checkItemId,callback){
+      var self = this.base;
+      var data = {
+        idChecklist: checklistId,
+        idCheckItem: checkItemId,
+        value: 'complete'
+      };
+
+      console.log(JSON.stringify(data));
+      self.request('put', '/1/cards/' + cardId + '/checklist/' + checklistId + '/checkItem/' + checkItemId + '/state?value=complete', data, callback);
+      console.log("2");
     },
     create: function (cardId, name, pos, callback) {
       var self = this.base;
